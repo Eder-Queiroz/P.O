@@ -268,14 +268,13 @@ int eh_vazia_listad(Listad *L)
 
 struct noS
 {
-    int info;
+    void *info;
     struct noS *prox;
-    int size;
 };
 
 typedef struct noS NoS;
 
-NoS* cria_noS(int valor)
+NoS* cria_noS(void* valor)
 {
     NoS* novo;
     novo = (NoS*) malloc(sizeof(NoS));
@@ -283,37 +282,23 @@ NoS* cria_noS(int valor)
 //inicializar campos
     novo->prox = NULL;
     novo->info = valor;
-    novo->size = 0;
 
     return novo;
 }
 
 
-NoS* insere_inicio(NoS *L, int valor)
+NoS* insere_inicio(NoS *L, void* valor)
 {
     NoS* nuevo = cria_noS(valor);
     if (L != NULL)
     {
         nuevo->prox = L;
     }
-
-    L->size += 1;
-
     return nuevo;
 }
 
 
-void mostra_lista(NoS* L)
-{
-    NoS* aux = L;
 
-    while (aux != NULL)
-    {
-        printf("%i ", aux->info);
-        aux = aux->prox;// (*aux).prox
-    }
-    printf("\n");
-}
 
 
 
@@ -330,7 +315,7 @@ NoS* libera_lista(NoS *L)
     return NULL;
 }
 
-NoS* insere_fim(NoS* L, int valor)
+NoS* insere_fim(NoS* L, void* valor)
 {
     NoS* novo = cria_noS(valor);
     NoS* aux = L;
@@ -349,65 +334,14 @@ NoS* insere_fim(NoS* L, int valor)
         }
         aux->prox = novo;
     }
-
-    L->size++;
-
     return L;
 }
 
-//insere ap�s o elemento
 
-NoS* insere_meio(NoS* L, int elemento, int valor)
-{
-
-    NoS* aux = L;
-    NoS* novo = cria_noS(valor);
-
-    if (L == NULL)
-    {
-        L = novo;
-    }
-    else
-    {
-        while (aux->info != elemento)
-        {
-            aux = aux->prox;
-        }
-        novo->prox = aux->prox;
-        aux->prox = novo;
-    }
-    return L;
-}
-
-NoS* remove_elemento(NoS* L, int elemento)
-{
-
-    NoS* aux = L;
-    NoS* anterior = NULL;
-    if (L != NULL)
-    {
-        while (aux->info != elemento)
-        {
-            anterior = aux;
-            aux = aux->prox;
-        }
-        if (anterior == NULL)//remove o primeiro elemento
-        {
-            L = aux->prox;
-        }
-        else
-        {
-            anterior->prox = aux->prox;
-        }
-        free(aux);
-    }
-    return L;//se nao removeu o primeiro elemento, retorna o mesmmo L
-}
-
-int remove_inicio(NoS** L)
+void* remove_inicio(NoS** L)
 {
     NoS* aux = *L;
-    int pont;
+    void* pont;
 
     if (*L != NULL)
     {
@@ -418,23 +352,22 @@ int remove_inicio(NoS** L)
     return pont;
 }
 
-
 /*FIM B. listaSimples*/
 
 /*B. Pilha*/
 
 typedef NoS Pilha;
 
-Pilha* cria_pilha()
-{
-    Pilha *p = NULL;
-    return p;
-}
+// Pilha* cria_pilha()
+// {
+//     Pilha *p = NULL;
+//     return p;
+// }
 
-Pilha* push(Pilha *p, int elemento)
-{
-   return(insere_inicio(p, elemento));
-}
+// Pilha* push(Pilha *p, void* elemento)
+// {
+//    return(insere_inicio(p, elemento));
+// }
 
 int eh_vazia_pilha(Pilha *p)
 {
@@ -443,36 +376,26 @@ int eh_vazia_pilha(Pilha *p)
     else
         return 0; //a pilha tem valores
 }
-
-//versao 1
-int pop(Pilha **p)
-{
-    Pilha *pont = *p;
-    int resposta = -1;
-    if (eh_vazia_pilha(*p) == 0)
-        resposta = remove_inicio(&pont);// ou poderia ser remove_inicio(&(*p));
-    return resposta;
-}
-/*
-versao 2
-Pilha* pop(Pilha *p, int *reposta)
-{
-    *resposta = -1;
-    if (!eh_vazia_pilha(p))
-        *resposta = remove_inicio(&p);
-    return p;
-}
-*/
+// /*
+// versao 2
+// Pilha* pop(Pilha *p, int *reposta)
+// {
+//     *resposta = -1;
+//     if (!eh_vazia_pilha(p))
+//         *resposta = remove_inicio(&p);
+//     return p;
+// }
+// */
 
 
 
-int top(Pilha *p)
-{
-    if (!eh_vazia_pilha(p))
-        return p->info;
-    else
-        return -1;
-}
+// int top(Pilha *p)
+// {
+//     if (!eh_vazia_pilha(p))
+//         return p->info;
+//     else
+//         return -1;
+// }
 
 /*FIM B. Pilha*/
 
@@ -488,40 +411,25 @@ int top(Pilha *p)
 
 // }
 
-void *get(Pilha *l, int index) {
-    Pilha *n = l;
-    int i = 0;
-    while (n != NULL) {
-        if (i == index) {
-            return n->info;
-        }
-        n = n->prox;
-        i++;
-    }
-    return NULL;
-}
-
 void em_ordem_iterativo(No* raiz) {
 
-    Pilha* pilha = cria_pilha();
-    No* aux = raiz;
+    No *aux = raiz;
+    NoS* pilha = NULL;
 
-    do{
+    while(aux != NULL || !eh_vazia_pilha(pilha)) {
 
-        while (aux != NULL)
-        {
-            pilha = insere_fim(pilha, aux->info);
+        if(aux != NULL) {
+            pilha = insere_inicio(pilha, (void*)aux);
             aux = aux->esq;
-        }
-        
-        // verifica se ja processou toda a arvore
-        if(!eh_vazia_pilha(pilha)) {
-            pop(&pilha);
-            printf("%i", aux->info);
+        }else {
+
+            aux = (No*)remove_inicio(&pilha);
+            printf("%i ", aux->info);
             aux = aux->dir;
+
         }
 
-    } while(aux != NULL || !eh_vazia_pilha(pilha));
+    }
 
 }
 
@@ -548,17 +456,22 @@ int main(int argc, char const *argv[])
     No* arvore = NULL;
     Listad* listaDupla = NULL;
 
-    while (info != -1)
-    {
-        printf("->");
-        scanf("%i", &info);
-        if(info != -1) {
-            arvore = abb_insere(arvore, info);
-        }
-    }
+    // while (info != -1)
+    // {
+    //     printf("->");
+    //     scanf("%i", &info);
+    //     if(info != -1) {
+    //         arvore = abb_insere(arvore, info);
+    //     }
+    // }
 
     // listaDupla = ArvoreForListad(arvore, listaDupla);
-    
+
+    arvore = abb_insere(arvore, 6);
+    arvore = abb_insere(arvore, 2);
+    arvore = abb_insere(arvore, 3);
+    arvore = abb_insere(arvore, 10);
+
     printf("\n\nArvore -> ");
 
     em_ordem_iterativo(arvore);
