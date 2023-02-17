@@ -107,7 +107,7 @@ No* abb_libera(No* raiz){
 
 struct nod
 {
-    int info;
+    void* info;
     struct nod *ant;
     struct nod *prox;
 };
@@ -128,7 +128,7 @@ Listad* cria_listad()
     return novalista;
 }
 
-Nod* cria_nod(int valor)
+Nod* cria_nod(void* valor)
 {
     Nod* novo = (Nod*)malloc(sizeof(Nod));
     novo->ant = novo->prox = NULL;
@@ -137,7 +137,7 @@ Nod* cria_nod(int valor)
 }
 
 
-Listad* insere_inicio_listad(Listad *L, int valor)
+Listad* insere_inicio_listad(Listad *L, void* valor)
 {
     Nod *novo= cria_nod(valor);
 
@@ -163,20 +163,7 @@ Listad* insere_inicio_listad(Listad *L, int valor)
 }
 
 
-
-void mostra_listad(Listad* L)
-{
-    Nod* aux = L->ini;
-
-    while(aux != NULL)
-    {
-        printf("%d ", aux->info);
-        aux = aux->prox;
-    }
-    printf("\n ");
-}
-
-Listad* insere_fim_listad(Listad* L, int valor)
+Listad* insere_fim_listad(Listad* L, void* valor)
 {
     Nod *novo = cria_nod(valor);
 
@@ -203,42 +190,12 @@ Listad* insere_fim_listad(Listad* L, int valor)
     return L;
 }
 
-Nod* localiza_elemento(Listad *L, int valor)
-{
-
-    Nod* aux = L->ini;
-
-    while(aux!=NULL && aux->info != valor)
-        aux = aux->prox;
-
-    return aux;
-}
 
 
-void insere_apos_elemento(Listad* L, int valor, int elemento)
-{
-    Nod* novo =cria_nod(valor);
-
-    Nod *aux2, *aux = localiza_elemento(L, elemento);
-
-    if (aux != NULL)
-    {
-        aux2 = aux->prox;
-        novo->prox = aux2;
-        aux2->ant = novo;
-        novo->ant = aux;
-        aux->prox = novo;
-        if (aux == L->fim)
-            L->fim = novo;
-    }
-    else
-        printf("elemento nao encontrado");
-}
-
-int remove_inicio_listad(Listad *L)
+void* remove_inicio_listad(Listad *L)
 {
     Nod* aux;
-    int resposta = -1;//quando nao tem nada pra remover
+    void* resposta = NULL;//quando nao tem nada pra remover
     if (L!=NULL)
         if (L->ini != NULL)
         {
@@ -258,10 +215,10 @@ int remove_inicio_listad(Listad *L)
     return resposta;
 }
 
-int remove_fim_listad(Listad *L)
+void* remove_fim_listad(Listad *L)
 {
     Nod* aux;
-    int resposta = -1;
+    void* resposta = NULL;
 
     if(L != NULL && L->fim != NULL)
     {
@@ -280,28 +237,6 @@ int remove_fim_listad(Listad *L)
     return resposta;
 }
 
-int remove_elemento_listad(Listad *L, int valor)
-{
-    Nod *aux = localiza_elemento(L,valor);
-    int resposta = -1;
-
-    if (aux != NULL)
-    {
-        if (aux == L->ini)
-            resposta = remove_inicio_listad(L);
-        else if(aux == L->fim)
-            resposta = remove_fim_listad(L);
-        else
-        {
-            aux->ant->prox = aux->prox;
-            aux->prox->ant = aux->ant;
-            resposta = aux->info;
-            free(aux);
-        }
-    }
-    return resposta;
-}
-
 Listad* libera_listad(Listad *L)
 {
     Nod *aux = L->ini;
@@ -309,24 +244,298 @@ Listad* libera_listad(Listad *L)
     while (aux != NULL)
     {
         L->ini = L->ini->prox;
+        free(aux->info);
         free(aux);
-        aux = L;
+        aux = L->ini;
     }
 
     free(L);
     return NULL;
-
 }
+
+int eh_vazia_listad(Listad *L)
+{
+    if (L == NULL || L->ini == NULL)
+        return 1;
+    else
+        return 0;
+}
+
 
 /*FIm B. ListaDupla*/
 
-/*Minhas funções*/
+/*B. listaSimples*/
 
-Listad* ArvoreForListad(No* raiz, Listad* lista) {
+struct noS
+{
+    int info;
+    struct noS *prox;
+    int size;
+};
 
-    if(raiz != NULL) {
-         
+typedef struct noS NoS;
+
+NoS* cria_noS(int valor)
+{
+    NoS* novo;
+    novo = (NoS*) malloc(sizeof(NoS));
+
+//inicializar campos
+    novo->prox = NULL;
+    novo->info = valor;
+    novo->size = 0;
+
+    return novo;
+}
+
+
+NoS* insere_inicio(NoS *L, int valor)
+{
+    NoS* nuevo = cria_noS(valor);
+    if (L != NULL)
+    {
+        nuevo->prox = L;
     }
+
+    L->size += 1;
+
+    return nuevo;
+}
+
+
+void mostra_lista(NoS* L)
+{
+    NoS* aux = L;
+
+    while (aux != NULL)
+    {
+        printf("%i ", aux->info);
+        aux = aux->prox;// (*aux).prox
+    }
+    printf("\n");
+}
+
+
+
+NoS* libera_lista(NoS *L)
+{
+    NoS *aux = L;
+
+    while (aux != NULL)
+    {
+        L = L->prox;
+        free(aux);
+        aux = L;
+    }
+    return NULL;
+}
+
+NoS* insere_fim(NoS* L, int valor)
+{
+    NoS* novo = cria_noS(valor);
+    NoS* aux = L;
+
+    if (L == NULL)
+    {
+        L = novo;
+    }
+    else
+    {
+        //  for (aux = L; aux->prox != NULL; aux = aux->prox)
+
+        while (aux->prox != NULL)
+        {
+            aux = aux->prox;
+        }
+        aux->prox = novo;
+    }
+
+    L->size++;
+
+    return L;
+}
+
+//insere ap�s o elemento
+
+NoS* insere_meio(NoS* L, int elemento, int valor)
+{
+
+    NoS* aux = L;
+    NoS* novo = cria_noS(valor);
+
+    if (L == NULL)
+    {
+        L = novo;
+    }
+    else
+    {
+        while (aux->info != elemento)
+        {
+            aux = aux->prox;
+        }
+        novo->prox = aux->prox;
+        aux->prox = novo;
+    }
+    return L;
+}
+
+NoS* remove_elemento(NoS* L, int elemento)
+{
+
+    NoS* aux = L;
+    NoS* anterior = NULL;
+    if (L != NULL)
+    {
+        while (aux->info != elemento)
+        {
+            anterior = aux;
+            aux = aux->prox;
+        }
+        if (anterior == NULL)//remove o primeiro elemento
+        {
+            L = aux->prox;
+        }
+        else
+        {
+            anterior->prox = aux->prox;
+        }
+        free(aux);
+    }
+    return L;//se nao removeu o primeiro elemento, retorna o mesmmo L
+}
+
+int remove_inicio(NoS** L)
+{
+    NoS* aux = *L;
+    int pont;
+
+    if (*L != NULL)
+    {
+        *L = aux->prox;
+    }
+    pont = aux->info;
+    free(aux);
+    return pont;
+}
+
+
+/*FIM B. listaSimples*/
+
+/*B. Pilha*/
+
+typedef NoS Pilha;
+
+Pilha* cria_pilha()
+{
+    Pilha *p = NULL;
+    return p;
+}
+
+Pilha* push(Pilha *p, int elemento)
+{
+   return(insere_inicio(p, elemento));
+}
+
+int eh_vazia_pilha(Pilha *p)
+{
+    if (p == NULL)
+        return 1; //pilha esta vazia
+    else
+        return 0; //a pilha tem valores
+}
+
+//versao 1
+int pop(Pilha **p)
+{
+    Pilha *pont = *p;
+    int resposta = -1;
+    if (eh_vazia_pilha(*p) == 0)
+        resposta = remove_inicio(&pont);// ou poderia ser remove_inicio(&(*p));
+    return resposta;
+}
+/*
+versao 2
+Pilha* pop(Pilha *p, int *reposta)
+{
+    *resposta = -1;
+    if (!eh_vazia_pilha(p))
+        *resposta = remove_inicio(&p);
+    return p;
+}
+*/
+
+
+
+int top(Pilha *p)
+{
+    if (!eh_vazia_pilha(p))
+        return p->info;
+    else
+        return -1;
+}
+
+/*FIM B. Pilha*/
+
+// Listad* ArvoreForListad(No* raiz, Listad* lista) {
+
+//     if(raiz != NULL) {
+//         ArvoreForListad(raiz->esq, lista);
+//         lista = insere_fim_listad(lista, (void*)raiz->info);
+//         ArvoreForListad(raiz->dir, lista);     
+//     }
+
+//     return lista;
+
+// }
+
+void *get(Pilha *l, int index) {
+    Pilha *n = l;
+    int i = 0;
+    while (n != NULL) {
+        if (i == index) {
+            return n->info;
+        }
+        n = n->prox;
+        i++;
+    }
+    return NULL;
+}
+
+void em_ordem_iterativo(No* raiz) {
+
+    Pilha* pilha = cria_pilha();
+    No* aux = raiz;
+
+    do{
+
+        while (aux != NULL)
+        {
+            pilha = insere_fim(pilha, aux->info);
+            aux = aux->esq;
+        }
+        
+        // verifica se ja processou toda a arvore
+        if(!eh_vazia_pilha(pilha)) {
+            pop(&pilha);
+            printf("%i", aux->info);
+            aux = aux->dir;
+        }
+
+    } while(aux != NULL || !eh_vazia_pilha(pilha));
+
+}
+
+Listad* MostrarListaInt(Listad* lista) {
+
+    Nod* aux = lista->ini;
+
+    while (aux != NULL)
+    {
+        printf("%i ", aux->info);
+        aux = aux->prox;
+    }
+    
+    printf("\n");
 
 }
 
@@ -347,10 +556,20 @@ int main(int argc, char const *argv[])
             arvore = abb_insere(arvore, info);
         }
     }
+
+    // listaDupla = ArvoreForListad(arvore, listaDupla);
     
-    abb_em_ordem(arvore);
+    printf("\n\nArvore -> ");
+
+    em_ordem_iterativo(arvore);
+
+    // printf("\n\nLista dupla -> ");
+
+    // MostrarListaInt(listaDupla);
 
     abb_libera(arvore);
+
+    printf("\n\n");
 
     return 0;
 }
