@@ -411,10 +411,11 @@ int eh_vazia_pilha(Pilha *p)
 
 // }
 
-void em_ordem_iterativo(No* raiz) {
+Listad* em_ordem_iterativo(No* raiz) {
 
     No *aux = raiz;
     NoS* pilha = NULL;
+    Listad* lista = NULL;
 
     while(aux != NULL || !eh_vazia_pilha(pilha)) {
 
@@ -425,11 +426,14 @@ void em_ordem_iterativo(No* raiz) {
 
             aux = (No*)remove_inicio(&pilha);
             printf("%i ", aux->info);
+            lista = insere_fim_listad(lista, aux->info);
             aux = aux->dir;
 
         }
 
     }
+
+    return lista;
 
 }
 
@@ -474,11 +478,11 @@ int main(int argc, char const *argv[])
 
     printf("\n\nArvore -> ");
 
-    em_ordem_iterativo(arvore);
+    listaDupla = em_ordem_iterativo(arvore);
 
-    // printf("\n\nLista dupla -> ");
+    printf("\n\nLista dupla -> ");
 
-    // MostrarListaInt(listaDupla);
+    MostrarListaInt(listaDupla);
 
     abb_libera(arvore);
 
