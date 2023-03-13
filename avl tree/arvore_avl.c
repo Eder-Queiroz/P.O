@@ -115,6 +115,9 @@ Noavl*rotacao_direita(Noavl*candidato) {
     filho->dir = candidato;
     candidato->esq = neto;
 
+    filho->fb = 0;
+    candidato->fb = 0;
+
     return filho;
 
 }
@@ -125,23 +128,60 @@ Noavl*rotacao_esquerda(Noavl*candidato) {
     filho->esq = candidato;
     candidato->dir = neto;
 
+    filho->fb = 0;
+    candidato->fb = 0;
+
     return filho;
 }
 
 Noavl* rotacao_direita_esquerda(Noavl* candidato) {
 
-    candidato->dir = rotacao_direita(candidato->dir);
-    candidato = rotacao_esquerda(candidato);
+    Noavl* filho = candidato->dir;
+    Noavl* neto = filho->esq;
 
-    return candidato;
+    candidato->dir = rotacao_direita(candidato->dir);
+    Noavl* nova_raiz = rotacao_esquerda(candidato);
+
+    if(neto->fb == 1) {
+        candidato->fb = neto->fb = 0;
+        filho->fb = -1;
+    }
+
+    if(neto->fb == -1) {
+        candidato->fb = 1;
+        neto->fb = filho->fb = 0;
+    }
+
+    if(neto->fb == 0) {
+        filho->fb = candidato->fb = 0;
+    }
+
+    return nova_raiz;
 
 }
 
 Noavl* rotacao_esquerda_direita(Noavl* candidato) {
 
-    candidato->esq = rotacao_esquerda(candidato->esq);
-    candidato = rotacao_direita(candidato);
+    Noavl* filho = candidato->esq;
+    Noavl* neto = filho->dir;
 
-    return candidato;
+    candidato->esq = rotacao_esquerda(candidato->esq);
+    Noavl* nova_raiz = rotacao_direita(candidato);
+
+    if(neto->fb == 1) {
+        candidato->fb = -1;
+        filho->fb = neto->fb = 0;
+    }
+
+    if(neto->fb == -1) {
+        candidato->fb = neto->fb = 0;
+        filho->fb = 1;
+    }
+
+    if(neto->fb == 0) {
+        filho->fb = candidato->fb = 0;
+    }
+
+    return nova_raiz;
 
 }
